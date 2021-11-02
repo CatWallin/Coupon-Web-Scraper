@@ -15,4 +15,14 @@ driver = webdriver.Chrome(service=s)
 driver.maximize_window()
 driver.get('https://www.kroger.com/savings/cl/coupons/')
 source = driver.page_source
-print(source)
+
+soup = bs4.BeautifulSoup(source, 'html.parser')
+
+print(soup.title)
+items = soup.find_all(class_="AutoGrid-cell flex flex-grow items-stretch")
+for item in items:
+    promotion = item.find("div", class_="CouponCard-Info flex flex-col px-8 overflow-hidden")
+    expiration = item.find("div", class_="CouponExpiration ")
+    print(promotion.text.strip())
+    print(expiration)
+    print()
