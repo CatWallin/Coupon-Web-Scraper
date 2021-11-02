@@ -11,7 +11,7 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
 
 s=Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=s)
+driver = webdriver.Chrome(service=s, chrome_options=chrome_options)
 driver.maximize_window()
 driver.get('https://www.kroger.com/savings/cl/coupons/')
 source = driver.page_source
@@ -23,6 +23,8 @@ items = soup.find_all(class_="AutoGrid-cell flex flex-grow items-stretch")
 for item in items:
     promotion = item.find("div", class_="CouponCard-Info flex flex-col px-8 overflow-hidden")
     expiration = item.find("span", class_="kds-Text--s CouponExpiration-text CouponExpiration-textDate text-default-700")
+    url = item.get('href')
     print(promotion.text)
     print(expiration.text)
+    print(url)
     print()
