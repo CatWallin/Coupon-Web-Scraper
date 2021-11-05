@@ -6,8 +6,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import ActionChains
+from flask import Flask
+from flask_restful import Api, Resource
 import time
+
+app = Flask(__name__)
+api = Api(app)
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
@@ -17,9 +21,20 @@ driver = webdriver.Chrome(service=s, chrome_options=chrome_options)
 driver.maximize_window()
 
 
+@app.route('/')
+class ItemList(Resource):
+    def get(self):
+        return data, 200
+
+'''
+class Item(Resource):
+    def get(self, item_id):
+        return next(item for item in data if item["id"] == item_id), 200
+'''
+
 driver.get('https://www.publix.com/savings/digital-coupons')
 
-time.sleep(5)
+time.sleep(1)
 
 while True:
     try:
@@ -37,6 +52,7 @@ data = {}
 data['item'] = []
 
 items = soup.find_all(class_="card savings -coupon card-ui-responsive")
+id = 0
 
 for item in items:
     promotion = item.find("div", class_="card-title")
@@ -46,6 +62,7 @@ for item in items:
     image = item.find("img")
     url = item.get('href')
     data['item'].append({
+        'id': id,
         'promotion': promotion.text,
         'discount': discount.text,
         'description': description.text,
@@ -55,3 +72,9 @@ for item in items:
 
 with open('data.json', 'w') as outfile:
     json.dump(data, outfile)
+
+api.add_resource(ItemList, '/items')
+# api.add_resource(Item, '/items/<int:item_id>')
+
+if __name__ == '__main__':
+    app.run(debug=True)
