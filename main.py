@@ -4,6 +4,9 @@ import bs4
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import ActionChains
 import time
 
 chrome_options = webdriver.ChromeOptions()
@@ -15,6 +18,17 @@ driver.maximize_window()
 
 
 driver.get('https://www.publix.com/savings/digital-coupons')
+
+time.sleep(5)
+
+while True:
+    try:
+        button = driver.find_element(By.XPATH, "//*[contains(text(), 'Load More')]")
+    except NoSuchElementException:
+        break
+    button.click()
+
+
 source = driver.page_source
 
 soup = bs4.BeautifulSoup(source, 'html.parser')
