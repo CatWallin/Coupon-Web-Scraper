@@ -26,11 +26,11 @@ class ItemList(Resource):
     def get(self):
         return data, 200
 
-'''
+
 class Item(Resource):
     def get(self, item_id):
         return next(item for item in data if item["id"] == item_id), 200
-'''
+
 
 driver.get('https://www.publix.com/savings/digital-coupons')
 
@@ -48,8 +48,8 @@ source = driver.page_source
 
 soup = bs4.BeautifulSoup(source, 'html.parser')
 
-data = {}
-data['item'] = []
+data = []
+# data['item'] = []
 
 items = soup.find_all(class_="card savings -coupon card-ui-responsive")
 id = 0
@@ -61,7 +61,8 @@ for item in items:
     expiration = item.find("div", class_="validity text-block-default")
     image = item.find("img")
     url = item.get('href')
-    data['item'].append({
+    #data['item'].append({
+    data.append({
         'id': id,
         'promotion': promotion.text,
         'discount': discount.text,
@@ -74,7 +75,7 @@ with open('data.json', 'w') as outfile:
     json.dump(data, outfile)
 
 api.add_resource(ItemList, '/items')
-# api.add_resource(Item, '/items/<int:item_id>')
+api.add_resource(Item, '/items/<int:item_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
