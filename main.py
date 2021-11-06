@@ -16,6 +16,7 @@ chrome_options.add_argument("--incognito")
 s=Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, chrome_options=chrome_options)
 driver.maximize_window()
+'''
 driver.get('https://www.publix.com/savings/digital-coupons')
 
 time.sleep(1)
@@ -54,6 +55,45 @@ for item in items:
     })
 
 driver.close()
+'''
+driver.get('https://www.pccmarkets.com/departments/weekly-specials/all/')
+
+time.sleep(1)
+
+while True:
+    try:
+        button = driver.find_element(By.CLASS_NAME, "btn pc--weekly-specials-headline")
+    except NoSuchElementException:
+        break
+    button.click()
+
+source = driver.page_source
+
+soup = bs4.BeautifulSoup(source, 'html.parser')
+
+data = {}
+data['item'] = []
+
+items = soup.find_all(class_="card pcc-weekly-special pcc-weekly-special-featured")
+items += soup.find_all(class_="card pcc-weekly-special")
+id = 0
+
+for item in items:
+    product = item.find("h3", class_="h5 pcc-weekly-special-headline")
+    discount_text = item.find_all("p", class_="pcc-weekly-special-price")
+    discount = []
+    for x in discount_text:
+        discount.append(x.text)
+    brand = item.find("div", class_="pcc-weekly-special-label")
+    data['item'].append({
+        'id': id,
+        'product': product.text,
+        'discount': discount,
+        'brand': brand.text,
+    })
+    id += 1
+
+driver.close()
 
 with open("coupon_data.json", "w") as outfile:
     json.dump(data, outfile)
@@ -70,5 +110,6 @@ class Coupons(Resource):
 api.add_resource(Coupons, '/coupons')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
+
 
