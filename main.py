@@ -1,3 +1,5 @@
+import json
+
 import bs4
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -8,22 +10,12 @@ from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
 import time
 
-app = Flask(__name__)
-api = Api(app)
-
-
-@app.route('/items')
-def get_items():
-    return jsonify(data)
-
-
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
 
 s=Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, chrome_options=chrome_options)
 driver.maximize_window()
-print("OPENING")
 driver.get('https://www.publix.com/savings/digital-coupons')
 
 time.sleep(1)
@@ -61,6 +53,22 @@ for item in items:
         'src': image['src']
     })
 
+driver.close()
+
+with open("coupon_data.json", "w") as outfile:
+    json.dump(data, outfile)
+
+app = Flask(__name__)
+api = Api(app)
+
+
+class Coupons(Resource):
+    def get(self):
+        return data, 200
+
+
+api.add_resource(Coupons, '/coupons')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
