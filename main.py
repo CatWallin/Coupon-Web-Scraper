@@ -45,7 +45,12 @@ def get_coupon_data():
         discount_text = item.find_all("p", class_="pcc-weekly-special-price")
         discount = []
         for x in discount_text:
-            discount.append(x.text)
+            text = x.text.replace('  ', '')
+            text = text.strip()
+            text = text.replace('\n', ' ')
+            text = text.replace('|', '')
+            if text != "":
+                discount.append(text)
         brand = item.find("div", class_="pcc-weekly-special-label")
         data['item'].append({
             'id': id,
@@ -63,9 +68,11 @@ def get_coupon_data():
     app = Flask(__name__)
     api = Api(app)
 
+
     class Coupons(Resource):
         def get(self):
             return data, 200
+
 
     api.add_resource(Coupons, '/coupons')
 
